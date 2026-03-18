@@ -19,7 +19,7 @@ module.exports.handleEvent = async function({ api, event }) {
   // STEP 1: Trigger "bot"
   if (body && body.trim().toLowerCase() === "bot") {
     global.vampireSessions[threadID] = true;
-    return api.sendMessage("Tu ekdam topa hai kya 🫣",("muh tod dunga sabka 😂"), threadID, messageID);
+    return api.sendMessage("Tu ekdam topa hai kya 🫣", threadID, messageID);
   }
 
   // STEP 2: Only active session
