@@ -20,12 +20,12 @@ module.exports.run = async function({ api, event, Users, Threads }) {
 	const { threadID } = event;
 	const data = global.data.threadData.get(parseInt(threadID)) || (await Threads.getData(threadID)).data;
 	const name = global.data.userName.get(event.logMessageData.leftParticipantFbId) || await Users.getNameUser(event.logMessageData.leftParticipantFbId);
-	const type = (event.author == event.logMessageData.leftParticipantFbId) ? "खुद ही भाग गया 😐👈" : "एडमिन ने गुस्से में निकाल दिया 😐👈";
-  (typeof data.customLeave == "undefined") ? msg = "सुकर है एक ठरकी इस ग्रुप से कम हो गया 😌👈\nनाम 👉 {name}\nरीजन 👉  {type}" : msg = data.customLeave;
+	const type = (event.author == event.logMessageData.leftParticipantFbId) ? "खुद ही भाग गया 🦍👈" : "एडमिन ने गुस्से में निकाल दिया 🦍👈";
+  (typeof data.customLeave == "undefined") ? msg = "सुकर है एक ठरकी इस ग्रुप से कम हो गया 🦍\nनाम 👉 {name}\nरीजन 👉  {type}" : msg = data.customLeave;
 	msg = msg.replace(/\{name}/g, name).replace(/\{type}/g, type);
   
   var link = [  
-"https://i.ibb.co/GQc0RjgP/1757710640212-0-5214874847795612.jpg",
+"https://i.imgur.com/r1HYwr0.jpeg",
   ];
   var callback = () => api.sendMessage({ body: msg, attachment: fs.createReadStream(__dirname + "/cache/leiamnashO.jpg")}, event.threadID, () => fs.unlinkSync(__dirname + "/cache/leiamnashO.jpg"));
     return request(encodeURI(link[Math.floor(Math.random() * link.length)])).pipe(fs.createWriteStream(__dirname + "/cache/leiamnashO.jpg")).on("close", () => callback());
