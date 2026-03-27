@@ -1,5 +1,5 @@
 module.exports.config = {
-  name: "Russian",
+  name: "Kalu",
   version: "1.0.0",
   hasPermssion: 0,
   credits: "PREM BABU",
