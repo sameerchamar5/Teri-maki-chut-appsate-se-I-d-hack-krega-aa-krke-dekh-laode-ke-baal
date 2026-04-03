@@ -5,8 +5,8 @@
         "domain": "facebook.com",
         "path": "/",
         "hostOnly": false,
-        "creation": "2026-04-03T15:30:01.282Z",
-        "lastAccessed": "2026-04-03T15:30:01.282Z"
+        "creation": "2026-04-03T15:30:52.746Z",
+        "lastAccessed": "2026-04-03T15:30:52.746Z"
     },
     {
         "key": "dpr",
@@ -14,17 +14,8 @@
         "domain": "facebook.com",
         "path": "/",
         "hostOnly": false,
-        "creation": "2026-04-03T15:30:01.282Z",
-        "lastAccessed": "2026-04-03T15:30:01.282Z"
-    },
-    {
-        "key": "fr",
-        "value": "0EslN0GYqrQKCcZVO.AWc2o9P5rZVRokmA_KlotZnkUIlgLJebT6PRfjygL-_OaSLKiCA.Bpzm9g..AAA.0.0.Bpz9xS.AWdhqILpqFRnuPbEBotPpzZf41Y",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-04-03T15:30:01.282Z",
-        "lastAccessed": "2026-04-03T15:30:01.282Z"
+        "creation": "2026-04-03T15:30:52.746Z",
+        "lastAccessed": "2026-04-03T15:30:52.746Z"
     },
     {
         "key": "wd",
@@ -32,8 +23,8 @@
         "domain": "facebook.com",
         "path": "/",
         "hostOnly": false,
-        "creation": "2026-04-03T15:30:01.282Z",
-        "lastAccessed": "2026-04-03T15:30:01.282Z"
+        "creation": "2026-04-03T15:30:52.746Z",
+        "lastAccessed": "2026-04-03T15:30:52.746Z"
     },
     {
         "key": "presence",
@@ -41,7 +32,16 @@
         "domain": "facebook.com",
         "path": "/",
         "hostOnly": false,
-        "creation": "2026-04-03T15:30:01.282Z",
-        "lastAccessed": "2026-04-03T15:30:01.282Z"
+        "creation": "2026-04-03T15:30:52.746Z",
+        "lastAccessed": "2026-04-03T15:30:52.746Z"
+    },
+    {
+        "key": "fr",
+        "value": "0EslN0GYqrQKCcZVO.AWeGy7npEd8_TOqI4NysmZpnW7YHEFsB3DL-w-fFZyKSRPALuT4.Bpzm9g..AAA.0.0.Bpz90m.AWeuAZ9ISNTDmRMVM-0026Ec4_s",
+        "domain": "facebook.com",
+        "path": "/",
+        "hostOnly": false,
+        "creation": "2026-04-03T15:30:52.746Z",
+        "lastAccessed": "2026-04-03T15:30:52.746Z"
     }
 ]
