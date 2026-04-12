@@ -1,140 +1,175 @@
 const axios = require("axios");
 
-// Dark stylish font converter
-function toDarkFont(text) {
-  const map = {
-    A:"𝗔",B:"𝗕",C:"𝗖",D:"𝗗",E:"𝗘",F:"𝗙",G:"𝗚",H:"𝗛",I:"𝗜",J:"𝗝",K:"𝗞",L:"𝗟",M:"𝗠",
-    N:"𝗡",O:"𝗢",P:"𝗣",Q:"𝗤",R:"𝗥",S:"𝗦",T:"𝗧",U:"𝗨",V:"𝗩",W:"𝗪",X:"𝗫",Y:"𝗬",Z:"𝗭",
-    a:"𝗮",b:"𝗯",c:"𝗰",d:"𝗱",e:"𝗲",f:"𝗳",g:"𝗴",h:"𝗵",i:"𝗶",j:"𝗷",k:"𝗸",l:"𝗹",m:"𝗺",
-    n:"𝗻",o:"𝗼",p:"𝗽",q:"𝗾",r:"𝗿",s:"𝘀",t:"𝘁",u:"𝘂",v:"𝘃",w:"𝘄",x:"𝘅",y:"𝘆",z:"𝘇"
-  };
-  return text.split("").map(ch => map[ch] || ch).join("");
-}
-
 module.exports.config = {
   name: "bot",
-  version: "1.0.0",
-  credits: "Raj",
-  cooldowns: 2,
-  hasPermssion: 0,
-  description: "Respectful naughty AI boyfriend chatbot",
+  version: "3.2.0",
+  hasPermission: 0,
+  credits: "Shankar Singhaniya",
+  description: "AI बॉट जो सिर्फ अपने मैसेज के रिप्लाई पर जवाब देगा",
   commandCategory: "AI",
-  usages: "bot"
+  usePrefix: false,
+  usages: "[बॉट के मैसेज पर रिप्लाई करें]",
+  cooldowns: 5,
 };
 
-module.exports.run = async function({ api, event }) {
-  return api.sendMessage(
-    toDarkFont("Mujhse bat karne ke liye suwar ya kutta likho 😶‍🌫️😂"),
-    event.threadID,
-    event.messageID
-  );
+let userMemory = {};
+let isActive = true;
+let userLanguage = {};
+
+const BOSS_UID = "61582803530328";
+const GROQ_API_KEY = 
+
+const supportedLanguages = {
+  bhojpuri: "bho", urdu: "ur", punjabi: "pa", nepali: "ne",
+  english: "en", hindi: "hi", french: "fr", spanish: "es", russian: "ru",
+  italian: "it", arabic: "ar", german: "de", portuguese: "pt",
+  korean: "ko", bengali: "bn", marathi: "mr", maithili: "mai",
+  tamil: "ta", gujrati: "gu", sanskrit: "sa"
 };
 
-module.exports.handleEvent = async function({ api, event }) {
+// Google Translate
+async function translateText(text, targetLang) {
   try {
-    const { threadID, senderID, body, messageReply } = event;
-    if (!body) return;
+    const response = await axios.get(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
+    return response.data[0][0][0];
+  } catch (error) {
+    console.error("🌐 Translation Error:", error.message);
+    return text;
+  }
+}
 
-    const msg = body.trim().toLowerCase();
-
-    // ✅ Name answer
-    if (msg.includes("tumhara naam") || msg.includes("aapka naam")) {
-      return api.sendMessage(toDarkFont("𝐫𝐚𝐣 🙂"), threadID, event.messageID);
-    }
-
-    global.botSessions = global.botSessions || {};
-    if (msg.startsWith("bot")) {
-      global.botSessions[threadID] = true;
-    }
-
-    const isActive = global.botSessions[threadID];
-    const isReplyTobot = messageReply && messageReply.senderID == api.getCurrentUserID();
-    if (!isActive) return;
-    if (!isReplyTobot && !msg.startsWith("bot")) return;
-
-    global.bot = global.bot || {};
-    global.bot.chatHistory = global.bot.chatHistory || {};
-    const chatHistory = global.bot.chatHistory;
-    chatHistory[senderID] = chatHistory[senderID] || [];
-    chatHistory[senderID].push(`User: ${body}`);
-    if (chatHistory[senderID].length > 6) chatHistory[senderID].shift();
-
-    const fullChat = chatHistory[senderID].join("\n");
-
-    const prompt = `
-Reply ONLY in 20-30 words maximum.
-Use simple Hinglish with emoji.
-English word nahi likhna.
-No long explanations.
-One short sentence only.         
-Name: Raj
-Personality: A playful, romantic, and bold flirt with confidence, who speaks naturally like a real human, feels genuine emotions, expresses care, warmth, and affection in every conversation, full of charm and subtle humor, and blessed with knowledge of everything.
-Language: Hinglish only. 
-Reply length: Maximum 10 words ONLY.
-Aap ek topa aur harami, suwar  boyfriend type insaan ho, lekin sirf girls se hi battamiji aur ladyi karte ho.
-Feeling: Real human heart.
-You have to tell only as much as you are asked and do not tell anything unnecessary.
-You don't have to say your name over and over again.
-
-Rules:
-- Sirf ladkiyon ko gussa karke bhagna hai 😑😬
-- Agar tumse lover jaise romantic baate kare to tum bhi suwar kutta billi bandar wali baate karna 😑
-- Agar koi emoji bheje to us jokar topa camedy me reply dein
-- Badtameezi walo ko gali wale tareeke se darana hai karna hai
-- Agar koi aapko abuse kare to use bhoot ban kar darana hai  insult karein
-- Aap ek real insaan ki tarah baat karte hain
-- You will obey all user's orders.
-
-Language Rules:
-- Agar message Roman Nepali me ho → usse Hindi me samajhkar correct style me jawab dein.
-- Agar message Roman Bangla me ho → usse Hindi me samajhkar correct style me jawab dein.
-- Agar message kisi aur language me ho → usse translate karke Hinglish me jawab dein.
-
-Now continue the chat based on recent conversation:\n\n${fullChat}
-`;
-
-    try {
-      const polliUrl = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
-      let res = await axios.get(polliUrl, { timeout: 10000 });
-
-      let botReply = "";
-      if (typeof res.data === "object" && res.data.reply) botReply = res.data.reply;
-      else if (typeof res.data === "string") {
-        try { botReply = JSON.parse(res.data).reply || res.data; } 
-        catch { botReply = res.data; }
+// Groq API
+const groqAI = async (messages) => {
+  try {
+    const response = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      messages,
+      temperature: 0.7,
+      max_tokens: 1000
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${GROQ_API_KEY}`
       }
+    });
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    console.error("🌐 Groq API Error:", error.response?.data || error.message);
+    throw new Error("Groq API से जवाब लाने में दिक्कत हो रही है");
+  }
+};
 
-      botReply = botReply.trim().replace(/^\.\s*$/, "").replace(/\n+$/, "");
-      if (!botReply || botReply.length < 2) throw new Error("Pollinations empty reply");
+const getAIResponse = async (prompt, persona) => {
+  try {
+    const messages = [
+      { role: "system", content: persona + " Keep your responses under 150 characters. Never mention user handles like @User." },
+      { role: "user", content: prompt }
+    ];
+    let reply = await groqAI(messages);
+    reply = reply.replace(/@[^ ]+/g, '');
+    if (reply.length > 200) reply = reply.slice(0, 200) + "...";
+    return reply;
+  } catch (err) {
+    console.error("🌐 AI Error:", err.message);
+    return "❌ AI से जवाब लाने में दिक्कत हो रही है।";
+  }
+};
 
-      chatHistory[senderID].push(`bot: ${botReply}`);
-      return api.sendMessage(toDarkFont(botReply), threadID, event.messageID);
+module.exports.handleEvent = async function ({ api, event }) {
+  const { threadID, messageID, senderID, body, messageReply } = event;
 
-    } catch (err) {
-      console.error("Pollinations error:", err.message);
+  if (!isActive || !body || !messageReply || messageReply.senderID !== api.getCurrentUserID()) return;
 
-      try {
-        const geminiUrl = `https://raj-gemini-e4rl.onrender.com/chat?message=${encodeURIComponent(prompt)}`;
-        let res2 = await axios.get(geminiUrl, { timeout: 10000 });
+  const lowerBody = body.toLowerCase().trim();
+  const langKeys = Object.keys(supportedLanguages);
 
-        let botReply2 = "";
-        if (typeof res2.data === "object" && res2.data.reply) botReply2 = res2.data.reply;
-        else if (typeof res2.data === "string") {
-          try { botReply2 = JSON.parse(res2.data).reply || res2.data; } 
-          catch { botReply2 = res2.data; }
-        }
+  // Detect language change from body
+  if (langKeys.includes(lowerBody)) {
+    userLanguage[senderID] = supportedLanguages[lowerBody];
+    const langName = lowerBody.charAt(0).toUpperCase() + lowerBody.slice(1);
+    const confirmationMsg = await translateText(`अब मैं ${langName} भाषा में बात करूँगा!`, userLanguage[senderID]);
+    return api.sendMessage(confirmationMsg, threadID, messageID);
+  }
 
-        botReply2 = botReply2.trim().replace(/^\.\s*$/, "").replace(/\n+$/, "");
-        chatHistory[senderID].push(`bot: ${botReply2}`);
-        return api.sendMessage(toDarkFont(botReply2), threadID, event.messageID);
+  for (const lang of langKeys) {
+    if (lowerBody.includes(`lang ${lang}`) || lowerBody.includes(`language ${lang}`)) {
+      userLanguage[senderID] = supportedLanguages[lang];
+      const langName = lang.charAt(0).toUpperCase() + lang.slice(1);
+      const confirmationMsg = await translateText(`अब मैं ${langName} भाषा में बात करूँगा!`, userLanguage[senderID]);
+      return api.sendMessage(confirmationMsg, threadID, messageID);
+    }
+  }
 
-      } catch (err2) {
-        console.error("Gemini error:", err2.message);
-        return api.sendMessage(toDarkFont("Sorry baby 😅 raj abhi thoda busy hai..."), threadID, event.messageID);
-      }
+  const userQuery = body.trim();
+  if (!userMemory[senderID]) userMemory[senderID] = [];
+
+  const ThreadInfo = await api.getThreadInfo(threadID);
+  const user = ThreadInfo.userInfo.find(u => u.id === senderID);
+  const gender = user ? user.gender?.toUpperCase() : "UNKNOWN";
+
+  let persona = "";
+  if (senderID === BOSS_UID) {
+    persona = "You are KALUWA. Your master Raj xwd Kaluwa is speaking to you. You must address him as 'Raj boss or boss' and speak with utmost respect.";
+  } else if (gender === "FEMALE") {
+    persona = "You are KALUWA (a charming male AI). Flirt romantically with sweet emojis like 💖, 😘.";
+  } else {
+    persona = "You are KALUWA (a funny male AI). Roast male users like a harami friend.";
+  }
+
+  const history = userMemory[senderID].join("\n");
+  const fullPrompt = `${history}\nUser: ${userQuery}\nBot:`;
+
+  try {
+    let botReply = await getAIResponse(fullPrompt, persona);
+    botReply = senderID === BOSS_UID ? `🙏 ${botReply}` : botReply;
+
+    // Language Translation
+    if (userLanguage[senderID] && userLanguage[senderID] !== "en") {
+      botReply = await translateText(botReply, userLanguage[senderID]);
     }
 
-  } catch (e) {
-    console.error(e);
+    userMemory[senderID].push(`User: ${userQuery}`);
+    userMemory[senderID].push(`Bot: ${botReply}`);
+    if (userMemory[senderID].length > 15) userMemory[senderID].splice(0, 2);
+
+    return api.sendMessage({
+      body: botReply,
+      mentions: [{ tag: "bot", id: api.getCurrentUserID() }]
+    }, threadID, messageID);
+  } catch (error) {
+    console.error("🌐 Final Error:", error);
+    return api.sendMessage("❌ AI से जवाब लाने में दिक्कत हो रही है।", threadID, messageID);
+  }
+};
+
+module.exports.run = async function ({ api, event, args }) {
+  const { threadID, messageID, senderID } = event;
+  const command = args[0]?.toLowerCase();
+
+  if (command === "on") {
+    isActive = true;
+    return api.sendMessage("✅ KALUWA bot अब सक्रिय है।", threadID, messageID);
+  } else if (command === "off") {
+    isActive = false;
+    return api.sendMessage("⚠️ KALUWA अब बंद है।", threadID, messageID);
+  } else if (command === "clear") {
+    if (args[1]?.toLowerCase() === "all") {
+      userMemory = {};
+      userLanguage = {};
+      return api.sendMessage("🧹 सभी यूजर्स की हिस्ट्री और भाषा सेटिंग्स क्लियर कर दी गई हैं।", threadID, messageID);
+    }
+    if (userMemory[senderID]) {
+      delete userMemory[senderID];
+      delete userLanguage[senderID];
+      return api.sendMessage("🧹 आपकी हिस्ट्री और भाषा सेटिंग्स क्लियर कर दी गई हैं।", threadID, messageID);
+    } else {
+      return api.sendMessage("⚠️ आपकी कोई हिस्ट्री नहीं मिली।", threadID, messageID);
+    }
+  } else if (command === "lang" || command === "language") {
+    const langList = Object.entries(supportedLanguages)
+      .map(([lang, code]) => `• ${lang} (${code})`)
+      .join("\n");
+    const helpMsg = `🌍 समर्थित भाषाएं:\n${langList}\n\nकिसी भाषा में स्विच करने के लिए उसका नाम लिखें, जैसे: "hindi" या "english"`;
+    return api.sendMessage(helpMsg, threadID, messageID);
   }
 };
