@@ -1,175 +1,32 @@
-const axios = require("axios");
-
+const fs = global.nodemodule["fs-extra"];
 module.exports.config = {
-  name: "bot",
-  version: "3.2.0",
-  hasPermission: 0,
-  credits: "Shankar Singhaniya",
-  description: "AI बॉट जो सिर्फ अपने मैसेज के रिप्लाई पर जवाब देगा",
-  commandCategory: "AI",
-  usePrefix: false,
-  usages: "[बॉट के मैसेज पर रिप्लाई करें]",
+  name: "goibot",
+  version: "1.0.1",
+  hasPermssion: 0,
+  credits: "Fixed By Arun Kumar",
+  description: "goibot",
+  commandCategory: "Noprefix",
+  usages: "noprefix",
   cooldowns: 5,
 };
+module.exports.handleEvent = async function({ api, event, args, Threads, Users }) {
+  var { threadID, messageID, reason } = event;
+  const moment = require("moment-timezone");
+  const time = moment.tz("Asia/Kolkata").format("DD/MM/YYYY || HH:mm:ss");
+  var idgr = `${event.threadID}`;
+  var id = event.senderID;
+  var name = await Users.getNameUser(event.senderID);
 
-let userMemory = {};
-let isActive = true;
-let userLanguage = {};
+  var tl = ["Sakal dekhi hai khud ki 🤧" , "mister moody ha ha ha ha ha 😦 Lo me bhi vairal ho gaya " , "Pahile muh to dho Lo 🫣" , "Chai pila na bhai kalute" , "tujhe mere ghar me naokri mili hai karega,Pura din Dekho Bot BoT🙄" , "tujhe mar kar tere anadr bhusa bhar kar tera tedy bear bnaunga 🐂" ,  "Ye bat iran tak jayegi😤" , "Kitni bar bola hu me bot nahi kaluwa hu🤬🍼" , "tum wahi ho na jisko mene pichli bar dhoya tha ☹️" , "dholki bajao dholki yahi kam bacha hai ab" , "Gaddar nikli re tu 😑", "Mere liye sabji roti Bana kar la 🫣" , "Chal bhag chale ham dono pakistan 🥺", "Teri yad bahut yad aati hai 🥺" , "oy meri Gudiya tere liye chand taare tod launga ☹️🤧" , "Ye sab kya dekhna parr rha 🥲" , "Tum hamse bhi jyada bhikhari ho aaj pata chala" , "1 ghusa me apne jaisa kala kar dunga tera muh 😝" , "tera paisa chori karke bhag jaunga mummy ke pass 🙉" , "me chala khana khane bukh Lagi hai bahut tej 😵‍💫" , "Jab dekho B0T B0T b0t bot bot bot 😑", "Chhodo na koi dekh lega🫣🫣", "Aja sajan aaja 😭🐂" , "Are kallu kahike 🍼😭🐂" , "me Ja rha dudhu pine 🍼😭🐂" , "me chala hagne 😤" , "so elegent, so beautiful , just looking like a wow🤭" , "Aaalu" , "Aayein🤔" , "I Love you Mere bhalu 🙉🐃, mera recharge khtm hone wala h☹️" , "paani paani mummy ji" , "apne Labhar ko dhoka do , daling hme bhi moka do🙈" , "Arry Bas Kar🤣😛" , "Me ni To Kon Be" , "naam adiya kumar 7vi kaksha me padhte hai favret subject begon😘" , "Mera Dimag Mat Khaya kro😒😒" , "Chuppp Saatvi Fail😒" , "Saste Nashe Kab Band kroge" , "Mai Jaanu Ke sath Busy hu yar, mujhe mat balao" , "me apni mummy ke shat geme khel rha ruk thoda" , "Hayee ese mt bulaya kro, mujhe sharm aati h" , "System pe system betha rahi chhori bot ki" , "Naach meri Bulbul tujhe pesa milega" , "me idhar se hu aap kidhar se ho" , "Khelega Free Fire🙈🙈" , "aye haye oye hoye aye haye oye hoye😍 bado badi bado badi😘" , "e halo bhai darr rha hai kya" , "akh ladi bado badi" , "haaye garmi😕" , "Ao kabhi haweli pe😍" , "Khelega Free Fire🥴" , "Hallo bai tu darr raha hai kya" , "janu bula raha h mujhe" , "I cant live without you babu😘" , "haa meri jaan" , "Agye Phirse Bot Bot Krne🙄" , "konse color ki jacket pehne ho umm btao na😚" , "Zinda rahina hai ya nahi"];
+  var rand = tl[Math.floor(Math.random() * tl.length)]
+   mess = "{name}"
+  if (event.body.indexOf("Bot") == 0 || (event.body.indexOf("bot") == 0)) {
+    var msg = {
+      body: `🔸${name}🔸,  💠\n\n«❀\n💠   ${rand} ❀\n\Boss 𝐊𝐀𝐋𝐔𝐖𝐀`
+    }
+    return api.sendMessage(msg, threadID, messageID);
+  };
 
-const BOSS_UID = "61582803530328";
-const GROQ_API_KEY = 
-
-const supportedLanguages = {
-  bhojpuri: "bho", urdu: "ur", punjabi: "pa", nepali: "ne",
-  english: "en", hindi: "hi", french: "fr", spanish: "es", russian: "ru",
-  italian: "it", arabic: "ar", german: "de", portuguese: "pt",
-  korean: "ko", bengali: "bn", marathi: "mr", maithili: "mai",
-  tamil: "ta", gujrati: "gu", sanskrit: "sa"
-};
-
-// Google Translate
-async function translateText(text, targetLang) {
-  try {
-    const response = await axios.get(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
-    return response.data[0][0][0];
-  } catch (error) {
-    console.error("🌐 Translation Error:", error.message);
-    return text;
-  }
 }
 
-// Groq API
-const groqAI = async (messages) => {
-  try {
-    const response = await axios.post("https://api.groq.com/openai/v1/chat/completions", {
-      model: "meta-llama/llama-4-scout-17b-16e-instruct",
-      messages,
-      temperature: 0.7,
-      max_tokens: 1000
-    }, {
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${GROQ_API_KEY}`
-      }
-    });
-    return response.data.choices[0].message.content;
-  } catch (error) {
-    console.error("🌐 Groq API Error:", error.response?.data || error.message);
-    throw new Error("Groq API से जवाब लाने में दिक्कत हो रही है");
-  }
-};
-
-const getAIResponse = async (prompt, persona) => {
-  try {
-    const messages = [
-      { role: "system", content: persona + " Keep your responses under 150 characters. Never mention user handles like @User." },
-      { role: "user", content: prompt }
-    ];
-    let reply = await groqAI(messages);
-    reply = reply.replace(/@[^ ]+/g, '');
-    if (reply.length > 200) reply = reply.slice(0, 200) + "...";
-    return reply;
-  } catch (err) {
-    console.error("🌐 AI Error:", err.message);
-    return "❌ AI से जवाब लाने में दिक्कत हो रही है।";
-  }
-};
-
-module.exports.handleEvent = async function ({ api, event }) {
-  const { threadID, messageID, senderID, body, messageReply } = event;
-
-  if (!isActive || !body || !messageReply || messageReply.senderID !== api.getCurrentUserID()) return;
-
-  const lowerBody = body.toLowerCase().trim();
-  const langKeys = Object.keys(supportedLanguages);
-
-  // Detect language change from body
-  if (langKeys.includes(lowerBody)) {
-    userLanguage[senderID] = supportedLanguages[lowerBody];
-    const langName = lowerBody.charAt(0).toUpperCase() + lowerBody.slice(1);
-    const confirmationMsg = await translateText(`अब मैं ${langName} भाषा में बात करूँगा!`, userLanguage[senderID]);
-    return api.sendMessage(confirmationMsg, threadID, messageID);
-  }
-
-  for (const lang of langKeys) {
-    if (lowerBody.includes(`lang ${lang}`) || lowerBody.includes(`language ${lang}`)) {
-      userLanguage[senderID] = supportedLanguages[lang];
-      const langName = lang.charAt(0).toUpperCase() + lang.slice(1);
-      const confirmationMsg = await translateText(`अब मैं ${langName} भाषा में बात करूँगा!`, userLanguage[senderID]);
-      return api.sendMessage(confirmationMsg, threadID, messageID);
-    }
-  }
-
-  const userQuery = body.trim();
-  if (!userMemory[senderID]) userMemory[senderID] = [];
-
-  const ThreadInfo = await api.getThreadInfo(threadID);
-  const user = ThreadInfo.userInfo.find(u => u.id === senderID);
-  const gender = user ? user.gender?.toUpperCase() : "UNKNOWN";
-
-  let persona = "";
-  if (senderID === BOSS_UID) {
-    persona = "You are KALUWA. Your master Raj xwd Kaluwa is speaking to you. You must address him as 'Raj boss or boss' and speak with utmost respect.";
-  } else if (gender === "FEMALE") {
-    persona = "You are KALUWA (a charming male AI). Flirt romantically with sweet emojis like 💖, 😘.";
-  } else {
-    persona = "You are KALUWA (a funny male AI). Roast male users like a harami friend.";
-  }
-
-  const history = userMemory[senderID].join("\n");
-  const fullPrompt = `${history}\nUser: ${userQuery}\nBot:`;
-
-  try {
-    let botReply = await getAIResponse(fullPrompt, persona);
-    botReply = senderID === BOSS_UID ? `🙏 ${botReply}` : botReply;
-
-    // Language Translation
-    if (userLanguage[senderID] && userLanguage[senderID] !== "en") {
-      botReply = await translateText(botReply, userLanguage[senderID]);
-    }
-
-    userMemory[senderID].push(`User: ${userQuery}`);
-    userMemory[senderID].push(`Bot: ${botReply}`);
-    if (userMemory[senderID].length > 15) userMemory[senderID].splice(0, 2);
-
-    return api.sendMessage({
-      body: botReply,
-      mentions: [{ tag: "bot", id: api.getCurrentUserID() }]
-    }, threadID, messageID);
-  } catch (error) {
-    console.error("🌐 Final Error:", error);
-    return api.sendMessage("❌ AI से जवाब लाने में दिक्कत हो रही है।", threadID, messageID);
-  }
-};
-
-module.exports.run = async function ({ api, event, args }) {
-  const { threadID, messageID, senderID } = event;
-  const command = args[0]?.toLowerCase();
-
-  if (command === "on") {
-    isActive = true;
-    return api.sendMessage("✅ KALUWA bot अब सक्रिय है।", threadID, messageID);
-  } else if (command === "off") {
-    isActive = false;
-    return api.sendMessage("⚠️ KALUWA अब बंद है।", threadID, messageID);
-  } else if (command === "clear") {
-    if (args[1]?.toLowerCase() === "all") {
-      userMemory = {};
-      userLanguage = {};
-      return api.sendMessage("🧹 सभी यूजर्स की हिस्ट्री और भाषा सेटिंग्स क्लियर कर दी गई हैं।", threadID, messageID);
-    }
-    if (userMemory[senderID]) {
-      delete userMemory[senderID];
-      delete userLanguage[senderID];
-      return api.sendMessage("🧹 आपकी हिस्ट्री और भाषा सेटिंग्स क्लियर कर दी गई हैं।", threadID, messageID);
-    } else {
-      return api.sendMessage("⚠️ आपकी कोई हिस्ट्री नहीं मिली।", threadID, messageID);
-    }
-  } else if (command === "lang" || command === "language") {
-    const langList = Object.entries(supportedLanguages)
-      .map(([lang, code]) => `• ${lang} (${code})`)
-      .join("\n");
-    const helpMsg = `🌍 समर्थित भाषाएं:\n${langList}\n\nकिसी भाषा में स्विच करने के लिए उसका नाम लिखें, जैसे: "hindi" या "english"`;
-    return api.sendMessage(helpMsg, threadID, messageID);
-  }
-};
+module.exports.run = function({ api, event, client, __GLOBAL }) { }
